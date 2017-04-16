@@ -240,6 +240,8 @@
 
     <string name="error_loading_pack">it seems like this pack was not set up
         correctly&#8230;</string>
+    <string name="no_themes_installed">there are no overlays you can install from this theme&#8230;
+    </string>
 
     <string name="content_resolver_alarm_metadata">Substratum Theme Alarm</string>
     <string name="content_resolver_notification_metadata">Substratum Theme Notification</string>

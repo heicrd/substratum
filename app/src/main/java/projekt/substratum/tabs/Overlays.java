@@ -149,6 +149,8 @@ public class Overlays extends Fragment {
     private Boolean missingType3 = false;
     private JobReceiver jobReceiver;
     private LocalBroadcastManager localBroadcastManager;
+    private RelativeLayout toggleZone;
+    private RelativeLayout no_apps_found;
 
     public void startCompileEnableMode() {
         if (!is_active) {
@@ -408,6 +410,8 @@ public class Overlays extends Fragment {
         progressBar = (ProgressBar) root.findViewById(R.id.header_loading_bar);
         progressBar.setVisibility(View.GONE);
 
+        no_apps_found = (RelativeLayout) root.findViewById(R.id.error_loading_pack);
+
         materialProgressBar = (MaterialProgressBar) root.findViewById(R.id.progress_bar_loader);
 
         // Pre-initialize the adapter first so that it won't complain for skipping layout on logs
@@ -444,7 +448,7 @@ public class Overlays extends Fragment {
                         Log.e("Overlays", "Window has lost connection with the host.");
                     }
                 });
-        RelativeLayout toggleZone = (RelativeLayout) root.findViewById(R.id.toggle_zone);
+        toggleZone = (RelativeLayout) root.findViewById(R.id.toggle_zone);
         toggleZone.setOnClickListener(v -> {
             try {
                 toggle_all.setChecked(!toggle_all.isChecked());
@@ -460,14 +464,16 @@ public class Overlays extends Fragment {
         });
         swipeRefreshLayout = (SwipeRefreshLayout) root.findViewById(R.id.swipeRefreshLayout);
         swipeRefreshLayout.setOnRefreshListener(() -> {
-            overlaysLists = ((OverlaysAdapter) mAdapter).getOverlayList();
-            for (int i = 0; i < overlaysLists.size(); i++) {
-                OverlaysInfo currentOverlay = overlaysLists.get(i);
-                currentOverlay.setSelected(false);
-                currentOverlay.updateEnabledOverlays(updateEnabledOverlays());
-                mAdapter.notifyDataSetChanged();
+            if (mAdapter != null) {
+                overlaysLists = ((OverlaysAdapter) mAdapter).getOverlayList();
+                for (int i = 0; i < overlaysLists.size(); i++) {
+                    OverlaysInfo currentOverlay = overlaysLists.get(i);
+                    currentOverlay.setSelected(false);
+                    currentOverlay.updateEnabledOverlays(updateEnabledOverlays());
+                    mAdapter.notifyDataSetChanged();
+                }
+                toggle_all.setChecked(false);
             }
-            toggle_all.setChecked(false);
             swipeRefreshLayout.setRefreshing(false);
         });
         swipeRefreshLayout.setVisibility(View.GONE);
@@ -672,8 +678,8 @@ public class Overlays extends Fragment {
                 // Buffer the disableBeforeEnabling String
                 ArrayList<String> disableBeforeEnabling = new ArrayList<>();
                 for (int i = 0; i < all_installed_overlays.size(); i++) {
-                    if (!References.grabOverlayParent(getContext(),
-                            all_installed_overlays.get(i)).equals(theme_pid)) {
+                    if (!java.util.Objects.equals(References.grabOverlayParent(getContext(),
+                            all_installed_overlays.get(i)), theme_pid)) {
                         disableBeforeEnabling.add(all_installed_overlays.get(i));
                     }
                 }
@@ -1008,15 +1014,31 @@ public class Overlays extends Fragment {
 
         @Override
         protected void onPostExecute(String result) {
-            if (materialProgressBar != null) materialProgressBar.setVisibility(View.GONE);
-            toggle_all.setEnabled(true);
-            base_spinner.setEnabled(true);
-            mAdapter = new OverlaysAdapter(values2);
-            mRecyclerView.setAdapter(mAdapter);
-            mAdapter.notifyDataSetChanged();
-            mRecyclerView.setVisibility(View.VISIBLE);
-            swipeRefreshLayout.setVisibility(View.VISIBLE);
             super.onPostExecute(result);
+
+            if (values2.size() == 0) {
+                if (toggle_all.isShown()) toggle_all.setVisibility(View.GONE);
+                if (base_spinner.isShown()) base_spinner.setVisibility(View.GONE);
+                if (toggleZone.isShown()) toggleZone.setVisibility(View.GONE);
+                if (mRecyclerView.isShown()) mRecyclerView.setVisibility(View.GONE);
+                if (!no_apps_found.isShown()) no_apps_found.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setVisibility(View.GONE);
+                swipeRefreshLayout.setEnabled(false);
+            } else {
+                if (!toggle_all.isShown()) toggle_all.setVisibility(View.VISIBLE);
+                if (!base_spinner.isShown()) base_spinner.setVisibility(View.VISIBLE);
+                if (!toggleZone.isShown()) toggleZone.setVisibility(View.VISIBLE);
+                if (no_apps_found.isShown()) no_apps_found.setVisibility(View.GONE);
+                toggle_all.setEnabled(true);
+                base_spinner.setEnabled(true);
+                mAdapter = new OverlaysAdapter(values2);
+                mRecyclerView.setAdapter(mAdapter);
+                mAdapter.notifyDataSetChanged();
+                if (!mRecyclerView.isShown()) mRecyclerView.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setVisibility(View.VISIBLE);
+                swipeRefreshLayout.setEnabled(true);
+            }
+            if (materialProgressBar != null) materialProgressBar.setVisibility(View.GONE);
         }
 
         @SuppressWarnings("ConstantConditions")
