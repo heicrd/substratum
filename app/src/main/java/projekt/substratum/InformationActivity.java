@@ -170,11 +170,30 @@ public class InformationActivity extends AppCompatActivity {
         if (viewPager != null) {
             viewPager.addOnPageChangeListener(null);
             viewPager.setOnPageChangeListener(null);
-            if (disableOverlays && viewPager.getCurrentItem() == 0) {
-                floatingActionButton.hide();
-            } else {
-                floatingActionButton.show();
+
+            switch (viewPager.getAdapter().instantiateItem(viewPager, tabPosition)
+                    .getClass().getSimpleName()) {
+                case "Overlays":
+                    if (disableOverlays) {
+                        floatingActionButton.hide();
+                    } else {
+                        floatingActionButton.show();
+                        floatingActionButton.setImageResource(
+                                R.drawable.floating_action_button_icon);
+                    }
+                    break;
+                case "BootAnimations":
+                case "Fonts":
+                case "Sounds":
+                    floatingActionButton.show();
+                    floatingActionButton.setImageResource(
+                            R.drawable.floating_action_button_icon_check);
+                    break;
+                case "Wallpapers":
+                    floatingActionButton.hide();
+                    break;
             }
+
             viewPager.setOnPageChangeListener(
                     new TabLayout.TabLayoutOnPageChangeListener(tabLayout) {
                         @Override
