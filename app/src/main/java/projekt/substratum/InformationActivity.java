@@ -95,6 +95,12 @@ public class InformationActivity extends AppCompatActivity {
     public static String theme_name, theme_pid, theme_mode;
     private static List<String> tab_checker;
     private static String wallpaperUrl;
+    @SuppressLint("StaticFieldLeak")
+    private static TabLayout tabLayout;
+    private static int tabPosition;
+    @SuppressLint("StaticFieldLeak")
+    private static ViewPager viewPager;
+    private static FloatingActionMenu floatingActionButton;
     private Boolean refresh_mode = false;
     private Boolean uninstalled = false;
     private KenBurnsView kenBurnsView;
@@ -104,12 +110,10 @@ public class InformationActivity extends AppCompatActivity {
     private AppBarLayout appBarLayout;
     private CollapsingToolbarLayout collapsingToolbarLayout;
     private View gradientView;
-    private TabLayout tabLayout;
     private ProgressDialog mProgressDialog;
     private MenuItem favorite;
     private boolean shouldDarken;
     private MaterialSheetFab materialSheetFab;
-    private int tabPosition;
 
     public static String getThemeName() {
         return theme_name;
@@ -160,6 +164,47 @@ public class InformationActivity extends AppCompatActivity {
                                 activity.getPackageName()));
             }
         });
+    }
+
+    public static void reloadFabBehaviour(Boolean disableOverlays) {
+        if (viewPager != null) {
+            viewPager.addOnPageChangeListener(null);
+            viewPager.setOnPageChangeListener(null);
+            if (disableOverlays && viewPager.getCurrentItem() == 0) {
+                floatingActionButton.hide();
+            } else {
+                floatingActionButton.show();
+            }
+            viewPager.setOnPageChangeListener(
+                    new TabLayout.TabLayoutOnPageChangeListener(tabLayout) {
+                        @Override
+                        public void onPageSelected(int position) {
+                            tabPosition = position;
+                            switch (viewPager.getAdapter().instantiateItem(viewPager, tabPosition)
+                                    .getClass().getSimpleName()) {
+                                case "Overlays":
+                                    if (disableOverlays) {
+                                        floatingActionButton.hide();
+                                    } else {
+                                        floatingActionButton.show();
+                                        floatingActionButton.setImageResource(
+                                                R.drawable.floating_action_button_icon);
+                                    }
+                                    break;
+                                case "BootAnimations":
+                                case "Fonts":
+                                case "Sounds":
+                                    floatingActionButton.show();
+                                    floatingActionButton.setImageResource(
+                                            R.drawable.floating_action_button_icon_check);
+                                    break;
+                                case "Wallpapers":
+                                    floatingActionButton.hide();
+                                    break;
+                            }
+                        }
+                    });
+        }
     }
 
     private boolean checkColorDarkness(int color) {
@@ -297,7 +342,7 @@ public class InformationActivity extends AppCompatActivity {
                 (R.id.collapsing_toolbar_tabbed_layout);
         if (collapsingToolbarLayout != null) collapsingToolbarLayout.setTitle(theme_name);
 
-        final ViewPager viewPager = (ViewPager) findViewById(R.id.viewpager);
+        viewPager = (ViewPager) findViewById(R.id.viewpager);
 
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -337,9 +382,7 @@ public class InformationActivity extends AppCompatActivity {
         int sheetColor = getApplicationContext().getColor(R.color.fab_menu_background_card);
         int fabColor = getApplicationContext().getColor(R.color.fab_background_color);
 
-        final FloatingActionMenu floatingActionButton = (FloatingActionMenu) findViewById(
-                R.id.apply_fab);
-        floatingActionButton.show();
+        floatingActionButton = (FloatingActionMenu) findViewById(R.id.apply_fab);
 
         // Create material sheet FAB
         if (sheetView != null && overlay != null) {
@@ -462,31 +505,7 @@ public class InformationActivity extends AppCompatActivity {
         if (viewPager != null) {
             viewPager.setOffscreenPageLimit((tabLayout != null) ? tabLayout.getTabCount() : 0);
             viewPager.setAdapter(adapter);
-            viewPager.addOnPageChangeListener(
-                    new TabLayout.TabLayoutOnPageChangeListener(tabLayout) {
-                        @Override
-                        public void onPageSelected(int position) {
-                            tabPosition = position;
-                            switch (viewPager.getAdapter().instantiateItem(viewPager, tabPosition)
-                                    .getClass().getSimpleName()) {
-                                case "Overlays":
-                                    floatingActionButton.show();
-                                    floatingActionButton.setImageResource(
-                                            R.drawable.floating_action_button_icon);
-                                    break;
-                                case "BootAnimations":
-                                case "Fonts":
-                                case "Sounds":
-                                    floatingActionButton.show();
-                                    floatingActionButton.setImageResource(
-                                            R.drawable.floating_action_button_icon_check);
-                                    break;
-                                case "Wallpapers":
-                                    floatingActionButton.hide();
-                                    break;
-                            }
-                        }
-                    });
+            reloadFabBehaviour(false);
             if (tabLayout != null) tabLayout.addOnTabSelectedListener(
                     new TabLayout.OnTabSelectedListener() {
                         @Override
