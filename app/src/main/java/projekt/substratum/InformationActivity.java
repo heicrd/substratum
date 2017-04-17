@@ -168,8 +168,6 @@ public class InformationActivity extends AppCompatActivity {
 
     public static void reloadFabBehaviour(Boolean disableOverlays) {
         if (viewPager != null) {
-            viewPager.setOnPageChangeListener(null);
-
             switch (viewPager.getAdapter().instantiateItem(viewPager, tabPosition)
                     .getClass().getSimpleName()) {
                 case "Overlays":
