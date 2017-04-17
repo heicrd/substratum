@@ -1018,8 +1018,6 @@ public class Overlays extends Fragment {
             super.onPostExecute(result);
 
             if (values2.size() == 0) {
-                if (toggle_all.isShown()) toggle_all.setVisibility(View.GONE);
-                if (base_spinner.isShown()) base_spinner.setVisibility(View.GONE);
                 if (toggleZone.isShown()) toggleZone.setVisibility(View.GONE);
                 if (mRecyclerView.isShown()) mRecyclerView.setVisibility(View.GONE);
                 if (!no_apps_found.isShown()) no_apps_found.setVisibility(View.VISIBLE);
@@ -1027,8 +1025,6 @@ public class Overlays extends Fragment {
                 swipeRefreshLayout.setVisibility(View.GONE);
                 swipeRefreshLayout.setEnabled(false);
             } else {
-                if (!toggle_all.isShown()) toggle_all.setVisibility(View.VISIBLE);
-                if (!base_spinner.isShown()) base_spinner.setVisibility(View.VISIBLE);
                 if (!toggleZone.isShown()) toggleZone.setVisibility(View.VISIBLE);
                 if (no_apps_found.isShown()) no_apps_found.setVisibility(View.GONE);
                 InformationActivity.reloadFabBehaviour(false);
