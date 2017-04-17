@@ -46,6 +46,7 @@ import android.service.notification.StatusBarNotification;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.Pair;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.NotificationCompat;
@@ -150,7 +151,7 @@ public class Overlays extends Fragment {
     private JobReceiver jobReceiver;
     private LocalBroadcastManager localBroadcastManager;
     private RelativeLayout toggleZone;
-    private RelativeLayout no_apps_found;
+    private NestedScrollView no_apps_found;
 
     public void startCompileEnableMode() {
         if (!is_active) {
@@ -410,7 +411,7 @@ public class Overlays extends Fragment {
         progressBar = (ProgressBar) root.findViewById(R.id.header_loading_bar);
         progressBar.setVisibility(View.GONE);
 
-        no_apps_found = (RelativeLayout) root.findViewById(R.id.error_loading_pack);
+        no_apps_found = (NestedScrollView) root.findViewById(R.id.error_loading_pack);
 
         materialProgressBar = (MaterialProgressBar) root.findViewById(R.id.progress_bar_loader);
 

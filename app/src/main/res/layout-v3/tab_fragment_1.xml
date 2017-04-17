@@ -103,14 +103,14 @@
         </android.support.v4.widget.SwipeRefreshLayout>
 
         <android.support.v4.widget.NestedScrollView
+            android:id="@+id/error_loading_pack"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:visibility="gone">
 
             <RelativeLayout
-                android:id="@+id/error_loading_pack"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:visibility="gone">
+                android:layout_height="match_parent">
 
                 <ImageView
                     android:id="@+id/sad_emoji"
