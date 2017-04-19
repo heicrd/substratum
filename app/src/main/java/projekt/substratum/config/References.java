@@ -124,7 +124,6 @@ public class References {
     private static final String APP_CRASHED = "projekt.substratum.APP_CRASHED";
     private static final String PACKAGE_ADDED = "android.intent.action.PACKAGE_ADDED";
     // This int controls the notification identifier
-    public static int firebase_notification_id = 24862486;
     public static int notification_id = 2486;
     public static int notification_id_upgrade = 248600;
     // Universal switch for Application-wide Debugging
@@ -524,9 +523,6 @@ public class References {
             return true;
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if (References.isNetworkAvailable(context)) {
-            FirebaseAnalytics.withdrawNames(context);
-        }
 
         if (prefs.contains("blacklisted_names")) {
             Set<String> pref = prefs.getStringSet("blacklisted_names", new HashSet<>());
@@ -1126,9 +1122,6 @@ public class References {
             return uncertified;
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        if (References.isNetworkAvailable(context)) {
-            FirebaseAnalytics.withdrawBlacklistedPackages(context);
-        }
 
         if (prefs.contains("blacklisted_packages")) {
             Set<String> pref = prefs.getStringSet("blacklisted_packages", new HashSet<>());
