@@ -26,24 +26,41 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import projekt.substratum.R;
-import projekt.substratum.adapters.TroubleshootingAdapter;
+import projekt.substratum.adapters.fragments.troubleshooting.TroubleshootingAdapter;
 
 public class TroubleshootingFragment extends Fragment {
 
     ListView troubleshootListView;
 
-    int[] troubleshootQuestions = {R.string.question_one, R.string
-            .question_two, R.string.question_three, R.string.question_four, R
-            .string.question_five, R.string.question_six, R.string
-            .question_seven, R.string.question_eight, R.string.question_nine,
-            R.string.question_ten, R.string.question_eleven, R.string
-            .question_twelve};
+    int[] troubleshootQuestions = {
+            R.string.question_one,
+            R.string.question_two,
+            R.string.question_three,
+            R.string.question_four,
+            R.string.question_five,
+            R.string.question_six,
+            R.string.question_seven,
+            R.string.question_eight,
+            R.string.question_nine,
+            R.string.question_ten,
+            R.string.question_eleven,
+            R.string.question_twelve
+    };
 
-    int[] troubleshootAnswers = {R.string.answer_one, R.string.answer_two, R
-            .string.answer_three, R.string.answer_four, R.string.answer_five,
-            R.string.answer_six, R.string.answer_seven, R.string
-            .answer_eight, R.string.answer_nine, R.string.answer_ten, R
-            .string.answer_eleven, R.string.answer_twelve};
+    int[] troubleshootAnswers = {
+            R.string.answer_one,
+            R.string.answer_two,
+            R.string.answer_three,
+            R.string.answer_four,
+            R.string.answer_five,
+            R.string.answer_six,
+            R.string.answer_seven,
+            R.string.answer_eight,
+            R.string.answer_nine,
+            R.string.answer_ten,
+            R.string.answer_eleven,
+            R.string.answer_twelve
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,24 +68,23 @@ public class TroubleshootingFragment extends Fragment {
         super.onCreate(savedInstanceState);
         View root = inflater.inflate(R.layout.troubleshooting_fragment, container, false);
 
-        troubleshootListView = (ListView) root.findViewById(R.id
-                .troubleshoot_list_view);
+        troubleshootListView = (ListView) root.findViewById(R.id.troubleshoot_list_view);
 
         // Make sure troubleshootQuestions & troubleshootAnswers are of same
         // length and then assign adapter to listView
-        troubleshootListView.setAdapter(new TroubleshootingAdapter
-                (troubleshootQuestions, troubleshootAnswers, getActivity()
-                        .getApplicationContext()));
+        troubleshootListView.setAdapter(
+                new TroubleshootingAdapter(
+                        troubleshootQuestions,
+                        troubleshootAnswers,
+                        getActivity().getApplicationContext()
+                ));
 
-        // Probably permanent but this avoids from having a janky look with the last card getting
-        // cut off
-        // Don't judge me
-        View footer = LayoutInflater.from(getActivity()).inflate(R.layout.list_footer,
-                troubleshootListView, false);
+        // This avoids from having a janky look with the last card getting cut off
+        View footer = LayoutInflater.from(
+                getActivity()).inflate(R.layout.list_footer, troubleshootListView, false);
         troubleshootListView.addFooterView(footer);
         troubleshootListView.setFooterDividersEnabled(false);
         footer.setOnClickListener(null);
-
         return root;
     }
 }

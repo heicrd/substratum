@@ -41,28 +41,30 @@ import java.util.ArrayList;
 import java.util.List;
 
 import projekt.substratum.R;
-import projekt.substratum.adapters.PrioritiesAdapter;
-import projekt.substratum.config.References;
-import projekt.substratum.config.ThemeManager;
-import projekt.substratum.model.Priorities;
-import projekt.substratum.model.PrioritiesItem;
+import projekt.substratum.adapters.fragments.priorities.PrioritiesInterface;
+import projekt.substratum.adapters.fragments.priorities.PrioritiesItem;
+import projekt.substratum.adapters.fragments.priorities.PriorityAdapter;
+import projekt.substratum.common.References;
+import projekt.substratum.common.platform.ThemeManager;
 
-import static projekt.substratum.config.References.REFRESH_WINDOW_DELAY;
+import static projekt.substratum.common.References.REFRESH_WINDOW_DELAY;
 
 public class PriorityListFragment extends Fragment {
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final ViewGroup root = (ViewGroup) inflater.inflate(R.layout.priority_list_fragment,
-                container, false);
+        final ViewGroup root = (ViewGroup)
+                inflater.inflate(R.layout.priority_list_fragment, container, false);
         final RecyclerView recyclerView = (RecyclerView) root.findViewById(R.id.recycler_view);
-        final FloatingActionButton applyFab = (FloatingActionButton) root.findViewById(R.id
-                .profile_apply_fab);
+        final FloatingActionButton applyFab = (FloatingActionButton)
+                root.findViewById(R.id.profile_apply_fab);
         final LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        final ProgressBar headerProgress = (ProgressBar) root.findViewById(R.id
-                .priority_header_loading_bar);
+        final ProgressBar headerProgress = (ProgressBar)
+                root.findViewById(R.id.priority_header_loading_bar);
         headerProgress.setVisibility(View.GONE);
 
         recyclerView.setHasFixedSize(true);
@@ -75,8 +77,8 @@ public class PriorityListFragment extends Fragment {
             Fragment fragment = new PriorityLoaderFragment();
             FragmentManager fm = getActivity().getSupportFragmentManager();
             FragmentTransaction transaction = fm.beginTransaction();
-            transaction.setCustomAnimations(android.R.anim.slide_in_left, android.R.anim
-                    .slide_out_right);
+            transaction.setCustomAnimations(
+                    android.R.anim.slide_in_left, android.R.anim.slide_out_right);
             transaction.replace(R.id.main, fragment);
             transaction.commit();
         });
@@ -88,72 +90,78 @@ public class PriorityListFragment extends Fragment {
             obtained_key = bundle.getString("package_name", null);
         }
 
-        final List<PrioritiesItem> prioritiesList = new ArrayList<>();
+        final List<PrioritiesInterface> prioritiesList = new ArrayList<>();
         final ArrayList<String> workable_list = new ArrayList<>();
         List<String> overlays = ThemeManager.listEnabledOverlaysForTarget(obtained_key);
         for (String o : overlays) {
-            prioritiesList.add(new Priorities(o,
+            prioritiesList.add(new PrioritiesItem(o,
                     References.grabOverlayParentIcon(getContext(), o)));
             workable_list.add(o);
         }
 
-        final PrioritiesAdapter adapter = new PrioritiesAdapter(getContext(), R.layout.linear_item);
+        final PriorityAdapter adapter = new PriorityAdapter(getContext(), R.layout.linear_item);
         adapter.setData(prioritiesList);
 
         recyclerView.setAdapter(adapter);
 
         new GestureManager.Builder(recyclerView)
                 .setManualDragEnabled(true)
-                .setGestureFlags(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT, ItemTouchHelper.UP
-                        | ItemTouchHelper.DOWN)
+                .setGestureFlags(
+                        ItemTouchHelper.LEFT |
+                                ItemTouchHelper.RIGHT,
+                        ItemTouchHelper.UP |
+                                ItemTouchHelper.DOWN)
                 .build();
 
-        adapter.setDataChangeListener(new GestureAdapter.OnDataChangeListener<PrioritiesItem>() {
-            @Override
-            public void onItemRemoved(final PrioritiesItem item, final int position) {
-            }
+        adapter.setDataChangeListener(
+                new GestureAdapter.OnDataChangeListener<PrioritiesInterface>() {
+                    @Override
+                    public void onItemRemoved(final PrioritiesInterface item, final int position) {
+                    }
 
-            @Override
-            public void onItemReorder(final PrioritiesItem item, final int fromPos, final int
-                    toPos) {
-                /*
-                ==========================================================================
-                A detailed explanation of the OMS "om set-priority PACKAGE PARENT" command
-                ==========================================================================
+                    @Override
+                    public void onItemReorder(
+                            PrioritiesInterface item,
+                            int fromPos,
+                            int toPos) {
+                        /*
+                        ==========================================================================
+                        A detailed explanation of the OMS "om set-priority PACKAGE PARENT" command
+                        ==========================================================================
 
-                1. The command accepts two variables, PACKAGE and PARENT.
+                        1. The command accepts two variables, PACKAGE and PARENT.
 
-                2. PARENT can also be "highest" or "lowest" to ensure it is on top of the list
+                        2. PARENT can also be "highest" or "lowest" to ensure it is on top of the
+                        list
 
-                3. When you specify a PACKAGE (e.g. com.android.systemui.Beltz), you want to shift
-                it HIGHER than the parent.
+                        3. When you specify a PACKAGE (e.g. com.android.systemui.Beltz), you want to
+                        shift it HIGHER than the parent.
 
-                4. The PARENT will always be a specified value that will be an index below the final
-                result of PACKAGE, for example (om set-priority com.android.systemui.Beltz
-                com.android.systemui.Domination)
+                        4. The PARENT will always be a specified value that will be an index below
+                        the final result of PACKAGE, for example
+                        (om set-priority com.android.systemui.Beltz com.android.systemui.Domination)
 
-                5. com.android.systemui.Beltz will be a HIGHER priority than
-                com.android.systemui.Domination
+                        5. com.android.systemui.Beltz will be a HIGHER priority than
+                        com.android.systemui.Domination
 
-                */
+                        */
 
-                if (fromPos != toPos) {
-                    String move_package = workable_list.get(fromPos);
-                    // As workable list is a simulation of the priority list without object
-                    // values, we have to simulate the events such as adding above parents
-                    workable_list.remove(fromPos);
-                    workable_list.add(toPos, move_package);
-                    applyFab.show();
-                }
-            }
-        });
+                        if (fromPos != toPos) {
+                            String move_package = workable_list.get(fromPos);
+                            // As workable list is a simulation of the priority list without object
+                            // values, we have to simulate the events such as adding above parents
+                            workable_list.remove(fromPos);
+                            workable_list.add(toPos, move_package);
+                            applyFab.show();
+                        }
+                    }
+                });
 
         applyFab.setOnClickListener(v -> {
             applyFab.hide();
             if (getView() != null) {
                 Lunchbar.make(getView(),
-                        getString(R.string.
-                                priority_success_toast),
+                        getString(R.string.priority_success_toast),
                         Lunchbar.LENGTH_INDEFINITE)
                         .show();
             }

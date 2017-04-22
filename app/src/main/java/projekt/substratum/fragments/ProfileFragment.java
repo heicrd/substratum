@@ -54,22 +54,25 @@ import java.util.Arrays;
 import java.util.List;
 
 import projekt.substratum.R;
-import projekt.substratum.config.ElevatedCommands;
-import projekt.substratum.config.FileOperations;
-import projekt.substratum.config.ProfileManager;
-import projekt.substratum.config.References;
-import projekt.substratum.config.ThemeInterfacerService;
-import projekt.substratum.config.ThemeManager;
-import projekt.substratum.config.WallpaperManager;
-import projekt.substratum.util.ReadOverlaysFile;
+import projekt.substratum.common.References;
+import projekt.substratum.common.commands.ElevatedCommands;
+import projekt.substratum.common.commands.FileOperations;
+import projekt.substratum.common.platform.ThemeInterfacerService;
+import projekt.substratum.common.platform.ThemeManager;
+import projekt.substratum.common.systems.ProfileManager;
+import projekt.substratum.common.tabs.WallpaperManager;
+import projekt.substratum.util.readers.ReadOverlaysFile;
 
-import static projekt.substratum.config.ProfileManager.DAY_PROFILE;
-import static projekt.substratum.config.ProfileManager.DAY_PROFILE_HOUR;
-import static projekt.substratum.config.ProfileManager.DAY_PROFILE_MINUTE;
-import static projekt.substratum.config.ProfileManager.NIGHT_PROFILE;
-import static projekt.substratum.config.ProfileManager.NIGHT_PROFILE_HOUR;
-import static projekt.substratum.config.ProfileManager.NIGHT_PROFILE_MINUTE;
-import static projekt.substratum.config.ProfileManager.SCHEDULED_PROFILE_ENABLED;
+import static projekt.substratum.common.References.LEGACY_NEXUS_DIR;
+import static projekt.substratum.common.References.PIXEL_NEXUS_DIR;
+import static projekt.substratum.common.References.VENDOR_DIR;
+import static projekt.substratum.common.systems.ProfileManager.DAY_PROFILE;
+import static projekt.substratum.common.systems.ProfileManager.DAY_PROFILE_HOUR;
+import static projekt.substratum.common.systems.ProfileManager.DAY_PROFILE_MINUTE;
+import static projekt.substratum.common.systems.ProfileManager.NIGHT_PROFILE;
+import static projekt.substratum.common.systems.ProfileManager.NIGHT_PROFILE_HOUR;
+import static projekt.substratum.common.systems.ProfileManager.NIGHT_PROFILE_MINUTE;
+import static projekt.substratum.common.systems.ProfileManager.SCHEDULED_PROFILE_ENABLED;
 
 public class ProfileFragment extends Fragment {
 
@@ -102,8 +105,9 @@ public class ProfileFragment extends Fragment {
         list.add(getResources().getString(R.string.spinner_default_item));
 
         // Now lets add all the located profiles
-        File f = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                "/substratum/profiles/");
+        File f = new File(
+                Environment.getExternalStorageDirectory().getAbsolutePath() +
+                        "/substratum/profiles/");
         File[] files = f.listFiles();
         if (files != null) {
             for (File inFile : files) {
@@ -116,29 +120,28 @@ public class ProfileFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.profile_fragment, container, false);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
-                getContext());
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
 
         headerProgress = (ProgressBar) root.findViewById(R.id.header_loading_bar);
         headerProgress.setVisibility(View.GONE);
 
         // Create a user viewable directory for profiles
-        File directory = new File(Environment.getExternalStorageDirectory(),
-                "/substratum/");
-        if (!directory.exists()) {
-            Boolean made = directory.mkdirs();
-            if (!made) Log.e(References.SUBSTRATUM_LOG, "Could not create Substratum directory...");
+        File directory = new File(
+                Environment.getExternalStorageDirectory(), "/substratum/");
+        if (!directory.exists() && !directory.mkdirs()) {
+            Log.e(References.SUBSTRATUM_LOG, "Could not create Substratum directory...");
         }
-        File directory2 = new File(Environment.getExternalStorageDirectory(),
-                "/substratum/profiles");
-        if (!directory2.exists()) {
-            Boolean made = directory2.mkdirs();
-            if (!made) Log.e(References.SUBSTRATUM_LOG, "Could not create profile directory...");
+        File directory2 = new File(
+                Environment.getExternalStorageDirectory(), "/substratum/profiles");
+        if (!directory2.exists() && directory2.mkdirs()) {
+            Log.e(References.SUBSTRATUM_LOG, "Could not create profile directory...");
         }
 
         // Handle Backups
@@ -158,6 +161,14 @@ public class ProfileFragment extends Fragment {
             return null;
         };
         backup_name.setFilters(new InputFilter[]{filter});
+        backup_name.setOnFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                InputMethodManager imm = (InputMethodManager)
+                        getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(backup_name.getWindowToken(),
+                        InputMethodManager.RESULT_UNCHANGED_SHOWN);
+            }
+        });
 
         final Button backupButton = (Button) root.findViewById(R.id.backupButton);
         backupButton.setOnClickListener(v -> {
@@ -260,8 +271,7 @@ public class ProfileFragment extends Fragment {
             }
         }
 
-        adapter = new ArrayAdapter<>(getContext(),
-                android.R.layout.simple_spinner_item, list);
+        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_spinner_item, list);
         // Specify the layout to use when the list of choices appears
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         profile_selector.setAdapter(adapter);
@@ -284,21 +294,20 @@ public class ProfileFragment extends Fragment {
                                             ".substratum");
                                     boolean deleted = f1.delete();
                                     if (!deleted)
-                                        Log.e(References.SUBSTRATUM_LOG, "Could not " +
-                                                "delete " +
-                                                "profile directory.");
+                                        Log.e(References.SUBSTRATUM_LOG,
+                                                "Could not delete profile directory.");
                                     FileOperations.delete(getContext(),
                                             Environment.getExternalStorageDirectory()
                                                     .getAbsolutePath() +
                                                     "/substratum/profiles/" +
-                                                    profile_selector
-                                                            .getSelectedItem());
+                                                    profile_selector.getSelectedItem());
                                     RefreshSpinner();
                                 })
                         .setNegativeButton(getString(R.string.delete_dialog_cancel), (dialog,
                                                                                       which) ->
                                 dialog.cancel())
-                        .create().show();
+                        .create()
+                        .show();
             } else {
                 if (getView() != null) {
                     Lunchbar.make(getView(),
@@ -346,8 +355,8 @@ public class ProfileFragment extends Fragment {
                 if (startTime.getText().equals(getResources().getString(R.string.start_time))) {
                     TimePickerFragment.setFlag(TimePickerFragment.FLAG_START_TIME);
                 } else {
-                    TimePickerFragment.setFlag(TimePickerFragment.FLAG_START_TIME
-                            | TimePickerFragment.FLAG_GET_VALUE);
+                    TimePickerFragment.setFlag(
+                            TimePickerFragment.FLAG_START_TIME | TimePickerFragment.FLAG_GET_VALUE);
                 }
                 timePickerFragment.show(fm, "TimePicker");
             });
@@ -358,8 +367,8 @@ public class ProfileFragment extends Fragment {
                 if (endTime.getText().equals(getResources().getString(R.string.end_time))) {
                     TimePickerFragment.setFlag(TimePickerFragment.FLAG_END_TIME);
                 } else {
-                    TimePickerFragment.setFlag(TimePickerFragment.FLAG_END_TIME
-                            | TimePickerFragment.FLAG_GET_VALUE);
+                    TimePickerFragment.setFlag(
+                            TimePickerFragment.FLAG_END_TIME | TimePickerFragment.FLAG_GET_VALUE);
                 }
                 timePickerFragment.show(fm, "TimePicker");
             });
@@ -481,8 +490,7 @@ public class ProfileFragment extends Fragment {
 
         @Override
         protected String doInBackground(String... sUrl) {
-            String uid = Environment.getExternalStorageDirectory().getAbsolutePath()
-                    .split("/")[3];
+            String uid = Environment.getExternalStorageDirectory().getAbsolutePath().split("/")[3];
 
             File nomediaFile = new File(Environment.getExternalStorageDirectory() +
                     "/substratum/.nomedia");
@@ -681,9 +689,9 @@ public class ProfileFragment extends Fragment {
             } else {
                 String current_directory;
                 if (References.inNexusFilter()) {
-                    current_directory = "/system/overlay/";
+                    current_directory = PIXEL_NEXUS_DIR;
                 } else {
-                    current_directory = "/system/vendor/overlay/";
+                    current_directory = LEGACY_NEXUS_DIR;
                 }
                 File file = new File(current_directory);
                 if (file.exists()) {
@@ -722,9 +730,9 @@ public class ProfileFragment extends Fragment {
                     FileOperations.setContext(current_directory);
                     FileOperations.mountRO();
                 } else {
-                    String vendor_location = "/system/vendor/overlay/";
-                    String vendor_partition = "/vendor/overlay/";
-                    String vendor_symlink = "/system/overlay/";
+                    String vendor_location = LEGACY_NEXUS_DIR;
+                    String vendor_partition = VENDOR_DIR;
+                    String vendor_symlink = PIXEL_NEXUS_DIR;
                     String current_vendor =
                             ((References.inNexusFilter()) ? vendor_partition :
                                     vendor_location);
@@ -777,11 +785,9 @@ public class ProfileFragment extends Fragment {
                 AlertDialog.Builder alertDialogBuilder =
                         new AlertDialog.Builder(getContext());
                 alertDialogBuilder
-                        .setTitle(getString(
-                                R.string.legacy_dialog_soft_reboot_title));
+                        .setTitle(getString(R.string.legacy_dialog_soft_reboot_title));
                 alertDialogBuilder
-                        .setMessage(getString(
-                                R.string.legacy_dialog_soft_reboot_text));
+                        .setMessage(getString(R.string.legacy_dialog_soft_reboot_text));
                 alertDialogBuilder
                         .setPositiveButton(
                                 android.R.string.ok, (dialog, id) -> ElevatedCommands.reboot());

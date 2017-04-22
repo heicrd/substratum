@@ -38,7 +38,6 @@ import java.util.TimerTask;
 import me.wangyuwei.galleryview.GalleryEntity;
 import me.wangyuwei.galleryview.GalleryView;
 import projekt.substratum.R;
-import projekt.substratum.easteregg.LLandActivity;
 
 public class TeamFragment extends Fragment {
 
@@ -104,7 +103,6 @@ public class TeamFragment extends Fragment {
         timer.schedule(new FlipTheThemers(), 0, PAGE_FLIP_DELAY);
 
         // Begin Developers
-
         developers.add((GalleryView) root.findViewById(R.id.developer1));
         developers.add((GalleryView) root.findViewById(R.id.developer2));
         developers.add((GalleryView) root.findViewById(R.id.developer3));
@@ -150,7 +148,6 @@ public class TeamFragment extends Fragment {
         timer2.schedule(new FlipTheDevelopers(), 0, PAGE_FLIP_DELAY);
 
         // Begin Developers
-
         developersRootless.add((GalleryView) root.findViewById(R.id.developerRootless1));
         developersRootless.add((GalleryView) root.findViewById(R.id.developerRootless2));
         developersRootless.add((GalleryView) root.findViewById(R.id.developerRootless3));
@@ -172,7 +169,6 @@ public class TeamFragment extends Fragment {
         developerRootlessEntities.clear();
 
         // Begin Contributors
-
         contributors.add((GalleryView) root.findViewById(R.id.contributor1));
         contributors.add((GalleryView) root.findViewById(R.id.contributor2));
         contributors.add((GalleryView) root.findViewById(R.id.contributor3));
@@ -245,15 +241,6 @@ public class TeamFragment extends Fragment {
                     });
             AlertDialog alert = builder.create();
             alert.show();
-        });
-        layers.setOnLongClickListener(v -> {
-            try {
-                Intent intent = new Intent(getActivity(), LLandActivity.class);
-                startActivity(intent);
-            } catch (ActivityNotFoundException activityNotFoundException) {
-                // Suppress warning
-            }
-            return true;
         });
 
         Button translators = (Button) root.findViewById(R.id.list_button_translators);
@@ -351,6 +338,12 @@ public class TeamFragment extends Fragment {
                             case 13:
                                 builder2.setItems(
                                         getResources().getStringArray(R.array.spanish_translators),
+                                        (dialog2, item2) -> {
+                                        });
+                                break;
+                            case 14:
+                                builder2.setItems(
+                                        getResources().getStringArray(R.array.turkish_translators),
                                         (dialog2, item2) -> {
                                         });
                                 break;

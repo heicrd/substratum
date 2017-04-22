@@ -417,8 +417,10 @@
         %s: Theme Bug Report</string>
     <string name="logcat_email_body" formatted="false" translatable="false">
         Hey %s,\n\nI have an issue with %s, and would
-        like to see if you could help me resolve this issue.\n\nDevice:%s\n\nReport:\n\n%s\n\n
-        Substratum Version:\n\n%d\n\nTheme Version:\n\n%s
+        like to see if you could help me resolve this issue.
+    </string>
+    <string name="logcat_attachment_body" formatted="false" translatable="false">
+        Device:\n%s\n\nTheme Version:\n%s\n\nSubstratum Version:\n%d\n\nReport:\n%s
     </string>
     <string name="logcat_email_activity">Send bug report using&#8230;</string>
     <string name="logcat_email_activity_error">There are no email clients installed.</string>
@@ -545,7 +547,7 @@
     <string name="toast_disabled6">Selected overlay(s) removed!</string>
     <string name="toast_installed">Selected overlay(s) applied!</string>
     <string name="toast_uninstalled">You just uninstalled this theme! I\'ll be gone on your next refresh!</string>
-    <string name="toast_uninstalling">Now uninstalling overlays&#8230;</string>
+    <string name="toast_uninstalling">Overlay(s) uninstalled!</string>
     <string name="toast_updating">Substratum is now getting your theme ready in the background!</string>
     <string name="no_themes_title">no themes found&#8230;</string>
     <string name="no_themes_description">please install a compatible theme!</string>
@@ -786,6 +788,9 @@
     <string name="break_compilation_dialog_continue">Continue</string>
     <string name="break_compilation_dialog_cancel">Cancel</string>
 
+    <string name="theme_safety_dialog_title">WARNING</string>
+    <string name="theme_safety_dialog_content">This is a crucial safety feature to recover you from bad overlay force closes! You can use Rescue Me! button on Substratum\'s app shortcut if you find yourself stuff, or your final resort would be to flash the rescue archives found in /storage/emulated/0/substratum/.</string>
+
     <string name="profile_dialog_title">select the items you want to backup</string>
     <string name="profile_no_selection_warning">Please select at least one option!</string>
     <string name="profile_boot_animation">Boot Animation</string>
@@ -865,7 +870,6 @@
 
     <string name="app_crash_title">%s keeps stopping&#8230;</string>
     <string name="app_crash_content">All enabled overlays for this app have been disabled.</string>
-    <string name="dirty_flash_detected">Your firmware or ROM was updated without deleting user data (dirty flash). Substratum will reconfigure itself to avoid bugs.</string>
 
     <string name="rom_status">support status:</string>
     <string name="rom_status_supported">%s is community supported!</string>

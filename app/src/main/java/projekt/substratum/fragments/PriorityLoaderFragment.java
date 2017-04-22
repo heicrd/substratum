@@ -40,31 +40,33 @@ import java.util.List;
 
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import projekt.substratum.R;
-import projekt.substratum.adapters.PrioritiesAdapter;
-import projekt.substratum.config.References;
-import projekt.substratum.config.ThemeManager;
-import projekt.substratum.model.Priorities;
-import projekt.substratum.model.PrioritiesItem;
+import projekt.substratum.adapters.fragments.priorities.PrioritiesInterface;
+import projekt.substratum.adapters.fragments.priorities.PrioritiesItem;
+import projekt.substratum.adapters.fragments.priorities.PriorityAdapter;
+import projekt.substratum.common.References;
+import projekt.substratum.common.platform.ThemeManager;
 
 public class PriorityLoaderFragment extends Fragment {
 
-    private List<PrioritiesItem> prioritiesList;
+    private List<PrioritiesInterface> prioritiesList;
     private List<String> app_list;
-    private PrioritiesAdapter adapter;
+    private PriorityAdapter adapter;
     private RelativeLayout emptyView;
     private RecyclerView recyclerView;
     private MaterialProgressBar materialProgressBar;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        final ViewGroup root = (ViewGroup) inflater.inflate(R.layout.priority_loader_fragment,
-                container, false);
+        final ViewGroup root = (ViewGroup)
+                inflater.inflate(R.layout.priority_loader_fragment, container, false);
 
         // Pre-initialize the adapter first so that it won't complain for skipping layout on logs
-        PrioritiesAdapter empty_adapter = new PrioritiesAdapter(getContext(), R.layout
-                .linear_loader_item);
+        PriorityAdapter empty_adapter = new PriorityAdapter(
+                getContext(), R.layout.linear_loader_item);
         recyclerView = (RecyclerView) root.findViewById(R.id.recycler_view);
         recyclerView.setAdapter(empty_adapter);
 
@@ -78,14 +80,13 @@ public class PriorityLoaderFragment extends Fragment {
         // Begin loading up list
         prioritiesList = new ArrayList<>();
         app_list = new ArrayList<>();
-        adapter = new PrioritiesAdapter(getContext(), R.layout
-                .linear_loader_item);
+        adapter = new PriorityAdapter(getContext(), R.layout.linear_loader_item);
 
         LoadPrioritizedOverlays loadPrioritizedOverlays = new LoadPrioritizedOverlays();
         loadPrioritizedOverlays.execute("");
 
-        recyclerView.addOnItemTouchListener(new RecyclerItemTouchListener(getActivity(), new
-                DefaultItemClickListener() {
+        recyclerView.addOnItemTouchListener(new RecyclerItemTouchListener(getActivity(),
+                new DefaultItemClickListener() {
                     @Override
                     public boolean onItemClick(final View view, final int position) {
                         Fragment fragment = new PriorityListFragment();
@@ -95,12 +96,10 @@ public class PriorityLoaderFragment extends Fragment {
                         fragment.setArguments(bundle);
                         FragmentManager fm = getActivity().getSupportFragmentManager();
                         FragmentTransaction transaction = fm.beginTransaction();
-                        transaction.setCustomAnimations(android.R.anim.fade_in, android.R.anim
-                                .fade_out);
+                        transaction.setCustomAnimations(
+                                android.R.anim.fade_in, android.R.anim.fade_out);
                         transaction.replace(R.id.main, fragment);
                         transaction.commit();
-
-                        // return true if the event is consumed
                         return false;
                     }
                 }));
@@ -124,9 +123,11 @@ public class PriorityLoaderFragment extends Fragment {
             recyclerView.setAdapter(adapter);
 
             new GestureManager.Builder(recyclerView)
-                    .setGestureFlags(ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT,
-                            ItemTouchHelper.UP
-                                    | ItemTouchHelper.DOWN)
+                    .setGestureFlags(
+                            ItemTouchHelper.LEFT |
+                                    ItemTouchHelper.RIGHT,
+                            ItemTouchHelper.UP |
+                                    ItemTouchHelper.DOWN)
                     .build();
         }
 
@@ -134,7 +135,7 @@ public class PriorityLoaderFragment extends Fragment {
         protected String doInBackground(String... sUrl) {
             List<String> targets = ThemeManager.listTargetWithMultipleOverlaysEnabled();
             for (String t : targets) {
-                prioritiesList.add(new Priorities(t, References.grabAppIcon(getContext(), t)));
+                prioritiesList.add(new PrioritiesItem(t, References.grabAppIcon(getContext(), t)));
                 app_list.add(t);
             }
             return null;

@@ -30,16 +30,11 @@ import android.widget.TimePicker;
 import java.util.Calendar;
 
 import projekt.substratum.R;
-import projekt.substratum.config.References;
-
-import static projekt.substratum.fragments.ProfileFragment.dayHour;
-import static projekt.substratum.fragments.ProfileFragment.dayMinute;
-import static projekt.substratum.fragments.ProfileFragment.nightHour;
-import static projekt.substratum.fragments.ProfileFragment.nightMinute;
+import projekt.substratum.common.References;
 
 
-public class TimePickerFragment extends DialogFragment implements TimePickerDialog
-        .OnTimeSetListener {
+public class TimePickerFragment extends DialogFragment implements
+        TimePickerDialog.OnTimeSetListener {
 
     public static final int FLAG_START_TIME = 1;
     public static final int FLAG_END_TIME = 2;
@@ -60,25 +55,29 @@ public class TimePickerFragment extends DialogFragment implements TimePickerDial
 
         if ((flag & FLAG_GET_VALUE) != 0) {
             if ((flag & FLAG_START_TIME) != 0) {
-                hour = nightHour;
-                minute = nightMinute;
+                hour = ProfileFragment.nightHour;
+                minute = ProfileFragment.nightMinute;
             } else if ((flag & FLAG_END_TIME) != 0) {
-                hour = dayHour;
-                minute = dayMinute;
+                hour = ProfileFragment.dayHour;
+                minute = ProfileFragment.dayMinute;
             }
         }
 
-        return new TimePickerDialog(getActivity(), this, hour, minute,
+        return new TimePickerDialog(
+                getActivity(),
+                this,
+                hour,
+                minute,
                 DateFormat.is24HourFormat(getActivity()));
     }
 
     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
         if ((flag & FLAG_START_TIME) != 0) {
-            final Button startTime = (Button) getActivity().findViewById(R.id.night_start_time);
+            Button startTime = (Button) getActivity().findViewById(R.id.night_start_time);
             startTime.setText(References.parseTime(getActivity(), hourOfDay, minute));
             ProfileFragment.setNightProfileStart(hourOfDay, minute);
         } else if ((flag & FLAG_END_TIME) != 0) {
-            final Button endTime = (Button) getActivity().findViewById((R.id.night_end_time));
+            Button endTime = (Button) getActivity().findViewById((R.id.night_end_time));
             endTime.setText(References.parseTime(getActivity(), hourOfDay, minute));
             ProfileFragment.setDayProfileStart(hourOfDay, minute);
         }

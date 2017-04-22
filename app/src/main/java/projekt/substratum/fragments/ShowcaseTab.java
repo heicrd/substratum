@@ -39,16 +39,16 @@ import java.util.Random;
 
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar;
 import projekt.substratum.R;
-import projekt.substratum.adapters.ShowcaseItemAdapter;
-import projekt.substratum.adapters.WallpaperAdapter;
-import projekt.substratum.config.References;
-import projekt.substratum.model.ShowcaseItem;
-import projekt.substratum.model.WallpaperEntries;
-import projekt.substratum.util.FileDownloader;
-import projekt.substratum.util.MD5;
-import projekt.substratum.util.ReadCloudShowcaseFile;
+import projekt.substratum.adapters.showcase.ShowcaseItem;
+import projekt.substratum.adapters.showcase.ShowcaseItemAdapter;
+import projekt.substratum.adapters.tabs.wallpapers.WallpaperAdapter;
+import projekt.substratum.adapters.tabs.wallpapers.WallpaperEntries;
+import projekt.substratum.common.References;
+import projekt.substratum.util.files.FileDownloader;
+import projekt.substratum.util.files.MD5;
+import projekt.substratum.util.readers.ReadCloudShowcaseFile;
 
-import static projekt.substratum.config.References.SHOWCASE_SHUFFLE_COUNT;
+import static projekt.substratum.common.References.SHOWCASE_SHUFFLE_COUNT;
 
 public class ShowcaseTab extends Fragment {
 
@@ -62,9 +62,10 @@ public class ShowcaseTab extends Fragment {
     private Context mContext;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
-
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
         mContext = getContext();
         prefs = PreferenceManager.getDefaultSharedPreferences(mContext);
 
@@ -80,7 +81,6 @@ public class ShowcaseTab extends Fragment {
         no_wallpapers = root.findViewById(R.id.none_found);
 
         refreshLayout();
-
         return root;
     }
 
@@ -136,8 +136,7 @@ public class ShowcaseTab extends Fragment {
             String inputFileName = sUrl[1];
             ArrayList<ShowcaseItem> wallpapers = new ArrayList<>();
 
-            File showcase_directory = new File(mContext.getCacheDir() +
-                    "/ShowcaseCache/");
+            File showcase_directory = new File(mContext.getCacheDir() + "/ShowcaseCache/");
             if (!showcase_directory.exists()) {
                 Boolean made = showcase_directory.mkdir();
                 if (!made)
@@ -149,8 +148,7 @@ public class ShowcaseTab extends Fragment {
             if (current_wallpapers.exists()) {
                 // We create a temporary file to check whether we should be replacing the
                 // current
-                inputFileName = inputFileName.substring(0, inputFileName.length() - 4) +
-                        ".xml";
+                inputFileName = inputFileName.substring(0, inputFileName.length() - 4) + ".xml";
             }
 
             FileDownloader.init(mContext, sUrl[0], inputFileName, "ShowcaseCache");
@@ -181,8 +179,7 @@ public class ShowcaseTab extends Fragment {
 
             inputFileName = sUrl[1];
 
-            String[] checkerCommands = {mContext.getCacheDir() +
-                    "/ShowcaseCache/" + inputFileName};
+            String[] checkerCommands = {mContext.getCacheDir() + "/ShowcaseCache/" + inputFileName};
 
             @SuppressWarnings("unchecked")
             final Map<String, String> newArray = ReadCloudShowcaseFile.main(checkerCommands);

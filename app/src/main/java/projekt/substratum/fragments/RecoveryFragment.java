@@ -18,8 +18,8 @@
 
 package projekt.substratum.fragments;
 
+import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -46,18 +46,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import projekt.substratum.R;
-import projekt.substratum.config.BootAnimationManager;
-import projekt.substratum.config.ElevatedCommands;
-import projekt.substratum.config.FileOperations;
-import projekt.substratum.config.FontManager;
-import projekt.substratum.config.References;
-import projekt.substratum.config.ThemeManager;
-import projekt.substratum.config.WallpaperManager;
-import projekt.substratum.util.SheetDialog;
-import projekt.substratum.util.SoundUtils;
+import projekt.substratum.common.References;
+import projekt.substratum.common.commands.ElevatedCommands;
+import projekt.substratum.common.commands.FileOperations;
+import projekt.substratum.common.platform.ThemeManager;
+import projekt.substratum.common.tabs.BootAnimationManager;
+import projekt.substratum.common.tabs.FontManager;
+import projekt.substratum.common.tabs.WallpaperManager;
+import projekt.substratum.util.tabs.SoundUtils;
+import projekt.substratum.util.views.SheetDialog;
 
 import static android.content.om.OverlayInfo.STATE_APPROVED_ENABLED;
 import static android.content.om.OverlayInfo.STATE_NOT_APPROVED_DANGEROUS_OVERLAY;
+import static projekt.substratum.common.References.LEGACY_NEXUS_DIR;
+import static projekt.substratum.common.References.PIXEL_NEXUS_DIR;
 
 
 public class RecoveryFragment extends Fragment {
@@ -74,8 +76,10 @@ public class RecoveryFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
-            savedInstanceState) {
+    public View onCreateView(
+            LayoutInflater inflater,
+            ViewGroup container,
+            Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ViewGroup root = (ViewGroup) inflater.inflate(R.layout.restore_fragment, container, false);
 
@@ -101,47 +105,40 @@ public class RecoveryFragment extends Fragment {
                 if (References.checkOMS(getContext())) {
                     if (getView() != null) {
                         Lunchbar.make(getView(),
-                                getString(R.string.
-                                        manage_system_overlay_toast),
+                                getString(R.string.manage_system_overlay_toast),
                                 Lunchbar.LENGTH_LONG)
                                 .show();
                     }
                     ThemeManager.disableAll(getContext());
                 } else {
-                    File vendor_location = new File("/system/vendor/overlay/");
-                    File overlay_location = new File("/system/overlay/");
+                    File vendor_location = new File(LEGACY_NEXUS_DIR);
+                    File overlay_location = new File(PIXEL_NEXUS_DIR);
                     FileOperations.mountRW();
                     if (vendor_location.exists()) {
                         FileOperations.mountRWVendor();
-                        FileOperations.delete(getContext(), vendor_location
-                                .getAbsolutePath());
+                        FileOperations.delete(getContext(), vendor_location.getAbsolutePath());
                         FileOperations.mountROVendor();
                     }
                     if (overlay_location.exists()) {
-                        FileOperations.delete(getContext(), overlay_location
-                                .getAbsolutePath());
+                        FileOperations.delete(getContext(), overlay_location.getAbsolutePath());
                     }
                     FileOperations.mountRO();
                     if (getView() != null) {
                         Lunchbar.make(getView(),
-                                getString(R.string.
-                                        abort_overlay_toast_success),
+                                getString(R.string.abort_overlay_toast_success),
                                 Lunchbar.LENGTH_LONG)
                                 .show();
                     }
                     AlertDialog.Builder alertDialogBuilder =
                             new AlertDialog.Builder(getContext());
                     alertDialogBuilder
-                            .setTitle(getString(
-                                    R.string.legacy_dialog_soft_reboot_title));
+                            .setTitle(getString(R.string.legacy_dialog_soft_reboot_title));
                     alertDialogBuilder
-                            .setMessage(getString(
-                                    R.string.legacy_dialog_soft_reboot_text));
+                            .setMessage(getString(R.string.legacy_dialog_soft_reboot_text));
                     alertDialogBuilder
                             .setPositiveButton(
                                     android.R.string.ok,
-                                    (dialog1, id) ->
-                                            ElevatedCommands.softReboot());
+                                    (dialog1, id) -> ElevatedCommands.softReboot());
                     alertDialogBuilder.setCancelable(false);
                     AlertDialog alertDialog = alertDialogBuilder.create();
                     alertDialog.show();
@@ -174,11 +171,11 @@ public class RecoveryFragment extends Fragment {
                                 .show();
                     }
                 } catch (IOException e) {
-                    Log.e(References.SUBSTRATUM_LOG, "Failed to restore home " +
-                            "screen wallpaper!");
+                    Log.e(References.SUBSTRATUM_LOG,
+                            "Failed to restore home screen wallpaper! " + e.getMessage());
                 } catch (NullPointerException e) {
-                    Log.e(References.SUBSTRATUM_LOG, "Cannot retrieve lock screen " +
-                            "wallpaper!");
+                    Log.e(References.SUBSTRATUM_LOG,
+                            "Cannot retrieve lock screen wallpaper! " + e.getMessage());
                 }
                 sheetDialog.hide();
             });
@@ -192,8 +189,8 @@ public class RecoveryFragment extends Fragment {
                                 .show();
                     }
                 } catch (IOException e) {
-                    Log.e(References.SUBSTRATUM_LOG, "Failed to restore lock " +
-                            "screen wallpaper!");
+                    Log.e(References.SUBSTRATUM_LOG,
+                            "Failed to restore lock screen wallpaper!" + e.getMessage());
                 }
                 sheetDialog.hide();
             });
@@ -202,13 +199,13 @@ public class RecoveryFragment extends Fragment {
                     WallpaperManager.clearWallpaper(getContext(), "all");
                     if (getView() != null) {
                         Lunchbar.make(getView(),
-                                getString(R.string.
-                                        manage_wallpaper_all_toast),
+                                getString(R.string.manage_wallpaper_all_toast),
                                 Lunchbar.LENGTH_LONG)
                                 .show();
                     }
                 } catch (IOException e) {
-                    Log.e(References.SUBSTRATUM_LOG, "Failed to restore wallpapers!");
+                    Log.e(References.SUBSTRATUM_LOG,
+                            "Failed to restore wallpapers! " + e.getMessage());
                 }
                 sheetDialog.hide();
             });
@@ -246,8 +243,7 @@ public class RecoveryFragment extends Fragment {
                 } else {
                     Intent intent = new Intent(
                             Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                    intent.setData(Uri.parse(
-                            "package:" + getActivity().getPackageName()));
+                    intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     if (getView() != null) {
@@ -275,8 +271,7 @@ public class RecoveryFragment extends Fragment {
                 } else {
                     Intent intent = new Intent(
                             Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                    intent.setData(Uri.parse(
-                            "package:" + getActivity().getPackageName()));
+                    intent.setData(Uri.parse("package:" + getActivity().getPackageName()));
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     startActivity(intent);
                     if (getView() != null) {
@@ -305,10 +300,9 @@ public class RecoveryFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.restore_info) {
-            Intent intent = new Intent(Intent.ACTION_MAIN);
-            intent.setComponent(new ComponentName("projekt.substratum", "projekt.substratum" +
-                    ".RestoreInfo"));
-            startActivity(intent);
+            Dialog dialog = new Dialog(getContext(), R.style.RestoreInfo);
+            dialog.setContentView(R.layout.restore_info);
+            dialog.show();
             return true;
         }
 
@@ -333,14 +327,12 @@ public class RecoveryFragment extends Fragment {
             try {
                 if (getView() != null) {
                     Lunchbar.make(getView(),
-                            getString(R.string.
-                                    manage_system_overlay_uninstall_toast),
+                            getString(R.string.manage_system_overlay_uninstall_toast),
                             Lunchbar.LENGTH_LONG)
                             .show();
                 }
             } catch (Exception e) {
-                // At this point the window is refreshed too many times causing an unattached
-                // Activity
+                // At this point the window is refreshed too many times detaching the activity
                 Log.e(References.SUBSTRATUM_LOG, "Profile window refreshed too " +
                         "many times, restarting current activity to preserve app " +
                         "integrity.");
@@ -384,8 +376,7 @@ public class RecoveryFragment extends Fragment {
 
             if (getView() != null) {
                 Lunchbar.make(getView(),
-                        getString(R.string.
-                                manage_bootanimation_toast),
+                        getString(R.string.manage_bootanimation_toast),
                         Lunchbar.LENGTH_LONG)
                         .show();
             }
@@ -419,16 +410,14 @@ public class RecoveryFragment extends Fragment {
             if (References.checkOMS(getContext())) {
                 if (getView() != null) {
                     Lunchbar.make(getView(),
-                            getString(R.string.
-                                    manage_fonts_toast),
+                            getString(R.string.manage_fonts_toast),
                             Lunchbar.LENGTH_LONG)
                             .show();
                 }
             } else {
                 if (getView() != null) {
                     Lunchbar.make(getView(),
-                            getString(R.string.
-                                    manage_fonts_toast),
+                            getString(R.string.manage_fonts_toast),
                             Lunchbar.LENGTH_LONG)
                             .show();
                 }
@@ -475,8 +464,7 @@ public class RecoveryFragment extends Fragment {
 
             if (getView() != null) {
                 Lunchbar.make(getView(),
-                        getString(R.string.
-                                manage_sounds_toast),
+                        getString(R.string.manage_sounds_toast),
                         Lunchbar.LENGTH_LONG)
                         .show();
             }
