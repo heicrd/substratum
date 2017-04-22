@@ -86,7 +86,6 @@ import java.util.TreeSet;
 import projekt.substratum.BuildConfig;
 import projekt.substratum.R;
 import projekt.substratum.activities.launch.AppShortcutLaunch;
-import projekt.substratum.common.analytics.FirebaseAnalytics;
 import projekt.substratum.common.commands.ElevatedCommands;
 import projekt.substratum.common.platform.ThemeInterfacerService;
 import projekt.substratum.common.tabs.SoundManager;
